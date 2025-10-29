@@ -1,6 +1,6 @@
-import ee
-import numpy as np
-from PIL import Image
+import ee # type: ignore
+import numpy as np # type: ignore
+from PIL import Image # type: ignore
 import requests
 from io import BytesIO
 
@@ -11,7 +11,7 @@ except ee.EEException:
     ee.Authenticate()
     ee.Initialize(project='map-change-detection')
 
-def fetch_gee_tile(lat, lon, start_date="2022-01-01", end_date="2022-12-31", size=256):
+def fetch_gee_tile(lat, lon, start_date="2025-03-01", end_date="2025-09-31", size=256):
     """
     Fetch a Sentinel-2 image tile from Google Earth Engine for a given lat/lon and date range.
     Returns a 3-channel RGB image (numpy array) in memory, resized to `size x size`.

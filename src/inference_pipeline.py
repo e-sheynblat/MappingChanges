@@ -1,7 +1,7 @@
 from fetch_historical import fetch_landsat_tile
 from fetch_current import fetch_google_tile
-import torch
-import cv2
+import torch # type: ignore
+import cv2 # type: ignore
 
 def process_tile_pair(lat, lon, model):
     """Fetch historical & current tiles in memory, run Siamese model, return prediction JSON."""
