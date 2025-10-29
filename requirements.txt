@@ -1,0 +1,29 @@
+python-dotenv==1.0.1          # load API keys from .env
+requests==2.32.3               # handle API calls
+tqdm==4.66.4                   # progress bars
+numpy==1.26.4
+pandas==2.2.3
+
+opencv-python==4.10.0.84       # image reading, transformations
+Pillow==10.4.0                 # image utilities
+geopandas==1.0.1               # spatial dataframes (if working with shapefiles)
+shapely==2.0.6
+rasterio==1.3.10               # satellite raster file handling
+folium==0.17.0                 # interactive map visualization
+matplotlib==3.9.2              # plotting
+scikit-image==0.24.0           # feature extraction, image comparison
+
+torch==2.4.1                   # PyTorch (change if using TensorFlow instead)
+torchvision==0.19.1
+scikit-learn==1.5.2            # clustering, preprocessing
+albumentations==1.4.7          # image augmentation
+segmentation-models-pytorch==0.3.3 
+
+gdown==5.2.0                   # easy download from Google Drive
+pyyaml==6.0.2                  # config parsing
+google-auth==2.35.0            # authentication for Google APIs
+googlemaps==4.10.0             # interface for Google Maps API
+pip install earthengine-api
+
+sentinelhub==3.10.2
+landsatxplore
