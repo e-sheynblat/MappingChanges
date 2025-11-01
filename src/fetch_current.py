@@ -1,8 +1,8 @@
 import os
-import cv2
-import numpy as np
+import cv2 # type: ignore
+import numpy as np # type: ignore
 import requests
-from dotenv import load_dotenv
+from dotenv import load_dotenv # type: ignore
 
 load_dotenv()
 GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_API_KEY")
