@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>San Francisco Change Detection Heatmap</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #111;
+            color: #fff;
+        }
+        svg {
+            display: block;
+            margin: auto;
+            background: #222;
+        }
+        .tooltip {
+            position: absolute;
+            background: rgba(0,0,0,0.8);
+            padding: 6px 10px;
+            border-radius: 4px;
+            color: #fff;
+            pointer-events: none;
+            font-size: 12px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+    </style>
+</head>
+<body>
+<h2 style="text-align:center;">San Francisco Change Detection Heatmap</h2>
+<svg id="heatmap" width="800" height="800"></svg>
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const width = 800;
+const height = 800;
+const svg = d3.select("#heatmap");
+const tooltip = d3.select("#tooltip");
+
+// Define SF bounding box
+const latExtent = [37.70, 37.81]; // min, max lat
+const lonExtent = [-122.52, -122.35]; // min, max lon
+
+// Scales
+const xScale = d3.scaleLinear().domain(lonExtent).range([0, width]);
+const yScale = d3.scaleLinear().domain(latExtent).range([height, 0]); // inverted y
+
+const colorScale = d3.scaleSequential(d3.interpolateRdYlGn)
+                     .domain([1, 0]); // 0=change(red), 1=no-change(green)
+
+// Load predictions
+d3.json("predictions_sf.json").then(data => {
+    svg.selectAll("circle")
+        .data(data)
+        .enter()
+        .append("circle")
+        .attr("cx", d => xScale(d.lon))
+        .attr("cy", d => yScale(d.lat))
+        .attr("r", 12)
+        .attr("fill", d => colorScale(d.prob))
+        .attr("opacity", 0.7)
+        .on("mouseover", (event,d) => {
+            tooltip.style("opacity",1)
+                   .html(`Lat: ${d.lat.toFixed(4)}<br>Lon: ${d.lon.toFixed(4)}<br>Change Prob: ${d.prob.toFixed(2)}`)
+                   .style("left", (event.pageX+10)+"px")
+                   .style("top", (event.pageY-20)+"px");
+        })
+        .on("mouseout", () => tooltip.style("opacity",0));
+    
+    // Optional: add legend
+    const legend = svg.append("g")
+                      .attr("transform", `translate(${width-150}, ${height-200})`);
+    const legendData = d3.range(0, 1.01, 0.1);
+    legend.selectAll("rect")
+          .data(legendData)
+          .enter()
+          .append("rect")
+          .attr("x", 0)
+          .attr("y", (d,i)=>i*20)
+          .attr("width", 20)
+          .attr("height", 20)
+          .attr("fill", d => colorScale(d));
+    legend.append("text")
+          .attr("x", 30)
+          .attr("y", 0)
+          .attr("fill", "#fff")
+          .text("Change Probability Legend")
+          .attr("font-size","12px");
+});
+</script>
+</body>
+</html>

@@ -23,7 +23,8 @@ gdown==5.2.0                   # easy download from Google Drive
 pyyaml==6.0.2                  # config parsing
 google-auth==2.35.0            # authentication for Google APIs
 googlemaps==4.10.0             # interface for Google Maps API
-pip install earthengine-api
+earthengine-api
 
 sentinelhub==3.10.2
 landsatxplore
+albumentations

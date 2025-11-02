@@ -1,33 +1,25 @@
-import torch # type: ignore
-import torch.nn as nn # type: ignore
-import torch.nn.functional as F # type: ignore
+import torch
+import torch.nn as nn
+import torchvision.models as models
 
-class BaseCNN(nn.Module):
-    def __init__(self):
-        super(BaseCNN, self).__init__()
-        self.conv1 = nn.Conv2d(3, 32, 3, padding=1)
-        self.pool = nn.MaxPool2d(2,2)
-        self.conv2 = nn.Conv2d(32,64,3,padding=1)
-        self.fc1 = nn.Linear(64*64*64, 128)  # assumes 256x256 input
+class ResNet50Siamese(nn.Module):
+    def __init__(self, pretrained=True):
+        super(ResNet50Siamese, self).__init__()
+        resnet = models.resnet50(weights=models.ResNet50_Weights.DEFAULT if pretrained else None)
+        self.features = nn.Sequential(*list(resnet.children())[:-1])  # remove last FC
+        self.dropout = nn.Dropout(0.5)
+        self.fc = nn.Linear(resnet.fc.in_features, 1)  # output probability
 
-    def forward(self,x):
-        x = F.relu(self.conv1(x))
-        x = self.pool(x)
-        x = F.relu(self.conv2(x))
-        x = self.pool(x)
+    def forward_once(self, x):
+        x = self.features(x)
         x = x.view(x.size(0), -1)
-        x = F.relu(self.fc1(x))
+        x = self.dropout(x)
+        x = nn.functional.normalize(x, p=2, dim=1)
         return x
 
-class SiameseNetwork(nn.Module):
-    def __init__(self):
-        super(SiameseNetwork, self).__init__()
-        self.embedding = BaseCNN()
-        self.fc2 = nn.Linear(128, 1)
-
     def forward(self, x1, x2):
-        out1 = self.embedding(x1)
-        out2 = self.embedding(x2)
+        out1 = self.forward_once(x1)
+        out2 = self.forward_once(x2)
         diff = torch.abs(out1 - out2)
-        out = torch.sigmoid(self.fc2(diff))
+        out = torch.sigmoid(self.fc(diff))
         return out

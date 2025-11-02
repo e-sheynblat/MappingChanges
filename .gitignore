@@ -11,6 +11,6 @@ data/processed/
 __pycache__/
 
 # Model checkpoints
-models/*.h5
+models
 
 venv
