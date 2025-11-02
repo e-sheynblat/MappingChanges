@@ -9,7 +9,7 @@ from datasets import ChangeDetectionDataset
 from siamese_model import ResNet50Siamese
 from fetch_historical import fetch_gee_tile
 from fetch_current import fetch_google_tile
-
+import os
 
 # ---------------------- Contrastive Loss ----------------------
 class ContrastiveLoss(nn.Module):
@@ -114,7 +114,8 @@ if __name__ == "__main__":
 
     # Model, loss, optimizer
     model = ResNet50Siamese(pretrained=True).to(device)
-    criterion = ContrastiveLoss(margin=1.0)
+    # Train the classification head directly with logits
+    bce_criterion = nn.BCEWithLogitsLoss()
     optimizer = optim.Adam(model.parameters(), lr=1e-4)
 
     # ---------------------- Training Loop ----------------------
@@ -130,9 +131,13 @@ if __name__ == "__main__":
             label = label.to(device)
 
             optimizer.zero_grad()
+            # Compute embeddings for both inputs
             out1 = model.forward_once(hist)
             out2 = model.forward_once(curr)
-            loss = criterion(out1, out2, label)
+            # Classification head on absolute difference (logits, no sigmoid)
+            diff = torch.abs(out1 - out2)
+            logits = model.fc(diff).squeeze(1)
+            loss = bce_criterion(logits, label)
             loss.backward()
             optimizer.step()
 
@@ -143,5 +148,6 @@ if __name__ == "__main__":
         print(f"Epoch {epoch + 1}/{num_epochs}, Loss = {epoch_loss:.4f}")
 
     # Save model
+    os.makedirs("models", exist_ok=True)
     torch.save(model.state_dict(), "models/model_resnet_grid.pth")
     print("✅ Model saved to models/model_resnet_grid.pth")
